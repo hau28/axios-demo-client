@@ -13,8 +13,17 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { login } from "../apis/auth";
-import { Alert, AlertTitle, IconButton, Snackbar } from "@mui/material";
+import {
+  Alert,
+  AlertTitle,
+  CircularProgress,
+  IconButton,
+  LinearProgress,
+  Snackbar,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import useSignin from "../hooks/useSignin";
+import { useLocation, useHistory } from "react-router-dom";
 
 function Copyright(props) {
   return (
@@ -36,31 +45,16 @@ function Copyright(props) {
 
 const theme = createTheme();
 
-export default function SignIn() {
-  const [error, setError] = React.useState({
-    show: false,
-    code: 0,
-    name: "",
-    message: "",
-  });
+export default function SignIn({ location }) {
+  const { signin, error, loading } = useSignin();
+  const history = useHistory();
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    login({ username: data.get("username"), password: data.get("password") })
-      .then((res) => {
-        setError({ show: false });
-        localStorage.setItem("user", JSON.stringify(res.data));
-      })
-      .catch((err) => {
-        console.error(err);
-        setError({
-          show: true,
-          code: err.response?.status,
-          name: err.response?.data?.name,
-          message: err.response?.data?.message,
-        });
-      });
+    signin(data.get("username"), data.get("password"), () => {
+      history.push({ pathname: location.state.from || "/" });
+    });
   };
 
   return (
@@ -130,7 +124,8 @@ export default function SignIn() {
                 </Link>
               </Grid>
             </Grid>
-            {error.show && (
+            {loading && <LinearProgress sx={{ mt: 3 }} />}
+            {error && (
               <Alert sx={{ mt: 3 }} severity="error">
                 <AlertTitle>
                   {error.code} {error.name}
