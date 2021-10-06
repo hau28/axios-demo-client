@@ -1,6 +1,6 @@
 import API from ".";
 
-export const getPostList = () => API.get("post/list");
-export const getFullPost = (id) => API.get(`post/view/${id}`);
-export const deletePost = (id) => API.get(`post/delete/${id}`);
-export const editPost = (id) => API.get(`post/edit/${id}`);
+export const getPostListAPI = () => API.get("post/list");
+export const getPostAPI = (id) => API.get(`post/view/${id}`);
+export const deletePostAPI = (id) => API.delete(`post/delete/${id}`);
+export const editPostAPI = (id) => API.put(`post/edit/${id}`);

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { login } from "../apis/auth";
+import { loginAPI } from "../apis/auth";
 
 export default function useSignin() {
   const [error, setError] = React.useState();
@@ -8,7 +8,7 @@ export default function useSignin() {
   function signin(username, password, onSigned) {
     setLoading(true);
     setError(null);
-    login({ username: username, password: username })
+    loginAPI({ username: username, password: username })
       .then((res) => {
         localStorage.setItem("user", JSON.stringify(res.data));
         onSigned(res);
@@ -17,8 +17,8 @@ export default function useSignin() {
         console.error(err);
         setError({
           code: err.response?.status,
-          name: err.response?.data?.name,
-          message: err.response?.data?.message,
+          name: err.response?.data?.name || err?.name,
+          message: err.response?.data?.message || err?.message,
         });
       })
       .finally(() => {

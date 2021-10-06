@@ -12,18 +12,9 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { login } from "../apis/auth";
-import {
-  Alert,
-  AlertTitle,
-  CircularProgress,
-  IconButton,
-  LinearProgress,
-  Snackbar,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import { Alert, AlertTitle, LinearProgress } from "@mui/material";
 import useSignin from "../hooks/useSignin";
-import { useLocation, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 function Copyright(props) {
   return (

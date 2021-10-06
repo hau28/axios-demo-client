@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-  BrowserRouter as Router,
-  Link,
-  useHistory,
-  useLocation,
-} from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -13,115 +8,102 @@ import TableRow from "@mui/material/TableRow";
 import {
   Alert,
   AlertTitle,
-  AppBar,
-  Badge,
   Button,
-  CircularProgress,
   Container,
   CssBaseline,
   Grid,
-  IconButton,
   LinearProgress,
   Paper,
   Stack,
-  Toolbar,
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
-import MenuIcon from "@mui/icons-material/Menu";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import useFetchPostList from "../hooks/useFetchPostList";
-
-const mdTheme = createTheme();
 
 export default function HomePage() {
   const { posts, error, loading } = useFetchPostList();
   let history = useHistory();
   let location = useLocation();
   return (
-    <ThemeProvider theme={mdTheme}>
-      <Box
-        sx={{
-          display: "flex",
-          backgroundColor: "whitesmoke",
-          minHeight: "100vh",
-        }}
-      >
-        <CssBaseline />
-        <Container maxWidth="lg" sx={{ mt: 12, mb: 4 }}>
-          <Grid container>
-            <Grid item xs={12}>
-              <Paper
-                sx={{ p: 2, display: "flex", flexDirection: "column", pb: 4 }}
+    <Box
+      sx={{
+        display: "flex",
+        backgroundColor: "whitesmoke",
+        minHeight: "100vh",
+      }}
+    >
+      <CssBaseline />
+      <Container maxWidth="lg" sx={{ mt: 12, mb: 4 }}>
+        <Grid container>
+          <Grid item xs={12}>
+            <Paper
+              sx={{ p: 2, display: "flex", flexDirection: "column", pb: 4 }}
+            >
+              <Typography
+                component="h2"
+                variant="h6"
+                color="primary"
+                gutterBottom
+                sx={{ pl: 1 }}
               >
-                <Typography
-                  component="h2"
-                  variant="h6"
-                  color="primary"
-                  gutterBottom
-                  sx={{ pl: 1 }}
-                >
-                  Posts
-                </Typography>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Title</TableCell>
-                      <TableCell>Required permission</TableCell>
-                      <TableCell align="right">Action</TableCell>
+                Posts
+              </Typography>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Title</TableCell>
+                    <TableCell>Required permission</TableCell>
+                    <TableCell align="right">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {posts?.map((post) => (
+                    <TableRow key={post.id}>
+                      <TableCell>{post.title}</TableCell>
+                      <TableCell>{post.permission}</TableCell>
+                      <TableCell align="right">
+                        <Stack direction="row-reverse" spacing={2}>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() =>
+                              history.push({ pathname: `/post/${post.id}` })
+                            }
+                          >
+                            View
+                          </Button>
+                        </Stack>
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {posts?.map((post) => (
-                      <TableRow key={post.id}>
-                        <TableCell>{post.title}</TableCell>
-                        <TableCell>{post.permission}</TableCell>
-                        <TableCell align="right">
-                          <Stack direction="row-reverse" spacing={2}>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              onClick={() =>
-                                history.push({ pathname: `/post/${post.id}` })
-                              }
-                            >
-                              View
-                            </Button>
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                {loading && <LinearProgress sx={{ mt: 3 }} />}
-                {error && (
-                  <Alert sx={{ mt: 3 }} severity="warning">
-                    <AlertTitle>
-                      {error.code} {error.name}
-                    </AlertTitle>
-                    {error.message}
-                    <br />
-                    {error?.code === 401 && (
-                      <Button
-                        variant="outlined"
-                        color="warning"
-                        sx={{ mt: 1 }}
-                        onClick={() =>
-                          history.push("/signin", { from: location.pathname })
-                        }
-                      >
-                        Sign in
-                      </Button>
-                    )}
-                  </Alert>
-                )}
-              </Paper>
-            </Grid>
+                  ))}
+                </TableBody>
+              </Table>
+              {loading && <LinearProgress sx={{ mt: 3 }} />}
+              {error && (
+                <Alert sx={{ mt: 3 }} severity="warning">
+                  <AlertTitle>
+                    {error.code} {error.name}
+                  </AlertTitle>
+                  {error.message}
+                  <br />
+                  {error?.code === 401 && (
+                    <Button
+                      variant="outlined"
+                      color="warning"
+                      sx={{ mt: 1 }}
+                      onClick={() =>
+                        history.push("/signin", { from: location.pathname })
+                      }
+                    >
+                      Sign in
+                    </Button>
+                  )}
+                </Alert>
+              )}
+            </Paper>
           </Grid>
-        </Container>
-      </Box>
-    </ThemeProvider>
+        </Grid>
+      </Container>
+    </Box>
   );
 }

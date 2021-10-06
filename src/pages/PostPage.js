@@ -1,46 +1,43 @@
 import * as React from "react";
-import {
-  BrowserRouter as Router,
-  Link,
-  useHistory,
-  useParams,
-  useLocation,
-} from "react-router-dom";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
+import { useHistory, useParams, useLocation } from "react-router-dom";
 import {
   Alert,
   AlertTitle,
-  AppBar,
-  Badge,
   Button,
-  CircularProgress,
   Container,
   CssBaseline,
-  Grid,
-  IconButton,
   LinearProgress,
-  Paper,
+  Snackbar,
   Stack,
-  Toolbar,
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
-import MenuIcon from "@mui/icons-material/Menu";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import EditIcon from "@mui/icons-material/Edit";
 import useFetchPost from "../hooks/useFetchPost";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-const mdTheme = createTheme();
+import { useDeletePost, useEditPost } from "../hooks/useUpdatePost";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 export default function PostPage() {
   let { id } = useParams();
+
   const { post, error, loading } = useFetchPost(id);
+  const {
+    editPost,
+    success: editSuccess,
+    error: editError,
+    loading: editLoading,
+    reset: editStatusReset,
+  } = useEditPost(id);
+  const {
+    deletePost,
+    success: deleteSuccess,
+    error: deleteError,
+    loading: deleteLoading,
+    reset: deleteStatusReset,
+  } = useDeletePost(id);
+
   let history = useHistory();
   let location = useLocation();
 
@@ -55,61 +52,116 @@ export default function PostPage() {
           {post.body}
         </Typography>
         <Stack sx={{ mt: 3 }} direction="row-reverse" spacing={2}>
-          <Button variant="outlined" startIcon={<EditIcon />}>
+          <LoadingButton
+            loading={editLoading}
+            loadingPosition="start"
+            startIcon={<EditIcon />}
+            variant="outlined"
+            onClick={() => {
+              deleteStatusReset();
+              editPost(id);
+            }}
+          >
             Edit
-          </Button>
-          <Button variant="outlined" color="error" startIcon={<DeleteIcon />}>
+          </LoadingButton>
+
+          <LoadingButton
+            loading={deleteLoading}
+            loadingPosition="start"
+            startIcon={<DeleteIcon />}
+            variant="outlined"
+            color="error"
+            onClick={() => {
+              editStatusReset();
+              deletePost(id);
+            }}
+          >
             Delete
-          </Button>
+          </LoadingButton>
         </Stack>
       </div>
     );
   };
 
+  const handleCloseSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    editStatusReset();
+    deleteStatusReset();
+  };
+
+  const snackMessage = () => {
+    if (editSuccess) return "Post edited successfully";
+    if (deleteSuccess) return "Post deleted successfully";
+  };
+
+  const anyError = () => {
+    return {
+      hasError: error || editError || deleteError,
+      code: error?.code || editError?.code || deleteError?.code,
+      name: error?.name || editError?.name || deleteError?.name,
+      message: error?.message || editError?.message || deleteError?.message,
+    };
+  };
+
   return (
-    <ThemeProvider theme={mdTheme}>
-      <Box
-        sx={{
-          display: "flex",
-          minHeight: "100vh",
-        }}
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+      }}
+    >
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        open={editSuccess || deleteSuccess}
+        onClose={handleCloseSnack}
+        autoHideDuration={5000}
       >
-        <CssBaseline />
-        <Container maxWidth="md" sx={{ mt: 12, mb: 4 }}>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<ArrowBack />}
-            onClick={() => history.push({ pathname: "/" })}
-          >
-            Back to home
-          </Button>
-          {renderPost()}
-          {loading && <LinearProgress sx={{ mt: 3 }} />}
-          {error && (
-            <Alert sx={{ mt: 3 }} severity="warning">
-              <AlertTitle>
-                {error.code} {error.name}
-              </AlertTitle>
-              {error.message}
-              <br />
-              {error?.code === 401 && (
-                <Button
-                  variant="outlined"
-                  color="warning"
-                  sx={{ mt: 1 }}
-                  onClick={() => {
-                    console.log(location.pathname);
-                    history.push("/signin", { from: location.pathname });
-                  }}
-                >
-                  Sign in
-                </Button>
-              )}
-            </Alert>
-          )}
-        </Container>
-      </Box>
-    </ThemeProvider>
+        <Alert
+          onClose={handleCloseSnack}
+          severity="success"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackMessage()}
+        </Alert>
+      </Snackbar>
+      <CssBaseline />
+      <Container maxWidth="md" sx={{ mt: 12, mb: 4 }}>
+        <Button
+          variant="contained"
+          size="large"
+          startIcon={<ArrowBack />}
+          onClick={() => history.push({ pathname: "/" })}
+        >
+          Back to home
+        </Button>
+        {renderPost()}
+        {loading && <LinearProgress sx={{ mt: 3 }} />}
+        {anyError().hasError && (
+          <Alert sx={{ mt: 3 }} severity="warning">
+            <AlertTitle>
+              {anyError().code} {anyError().name}
+            </AlertTitle>
+            {anyError().message}
+            <br />
+            {anyError()?.code === 401 && (
+              <Button
+                variant="outlined"
+                color="warning"
+                sx={{ mt: 1 }}
+                onClick={() => {
+                  console.log(location.pathname);
+                  history.push("/signin", { from: location.pathname });
+                }}
+              >
+                Sign in
+              </Button>
+            )}
+          </Alert>
+        )}
+      </Container>
+    </Box>
   );
 }

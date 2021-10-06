@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getFullPost } from "../apis/post";
+import { getPostAPI } from "../apis/post";
 
 export default function useFetchPost(id) {
   const [post, setPost] = React.useState();
@@ -11,15 +11,15 @@ export default function useFetchPost(id) {
   }, []);
 
   async function fetchFullPost() {
-    getFullPost(id)
+    getPostAPI(id)
       .then((res) => {
         setPost(res.data);
       })
       .catch((err) => {
         setError({
           code: err.response?.status,
-          name: err.response?.data?.name,
-          message: err.response?.data?.message,
+          name: err.response?.data?.name || err?.name,
+          message: err.response?.data?.message || err?.message,
         });
       })
       .finally(() => {

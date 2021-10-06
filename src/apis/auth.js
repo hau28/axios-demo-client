@@ -1,3 +1,3 @@
 import API from ".";
 
-export const login = (body) => API.post("user/login", body);
+export const loginAPI = (body) => API.post("user/login", body);
