@@ -48,7 +48,7 @@ export default function HomePage() {
               >
                 Posts
               </Typography>
-              <Table>
+              <Table data-testid="table">
                 <TableHead>
                   <TableRow>
                     <TableCell>Title</TableCell>
